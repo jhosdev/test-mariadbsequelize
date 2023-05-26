@@ -94,6 +94,9 @@ const getMenuItemsByRoleId = async (roleId) => {
 // @route POST /login
 // @access Public
 const login = async (req, res) => {
+
+    try {
+
     const { email, password } = req.body
 
     if (!email || !password) {
@@ -137,6 +140,10 @@ const login = async (req, res) => {
 
     // Send accessToken containing username and roles 
     res.json({ user: objUser, accessToken: accessToken });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
 }
 
 module.exports = {
