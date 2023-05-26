@@ -153,8 +153,6 @@ const login = async (req, res) => {
 
         const userObject = foundUser.get({ plain: true })
 
-        
-
         const accessToken = generateAccessToken(foundUser.username)
 
         const fullName = userObject.email.split('@')[0];
@@ -171,7 +169,7 @@ const login = async (req, res) => {
             empresa: userObject.empresa.name,
             menu: menuItems,
         }
-        
+
         // Send accessToken containing username and roles 
         res.json({ user: objUser, accessToken: accessToken });
 
