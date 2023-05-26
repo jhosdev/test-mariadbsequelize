@@ -1,16 +1,14 @@
 const db = require('../config/db');
 const User = db.users;
+const Rol = db.roles;
+const Company = db.companies;
 const Menu = db.menus;
 const MenuRol = db.menu_roles;
+
 
 const generateAccessToken = (username) => {
     if (username === "admin@gmail.com") return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsImlhdCI6MTY4NTExMTUwMiwiZXhwIjoxNjg1MTE1MTAyLCJzdWIiOiIxIn0.wioy7j4XX5vnj1YutcGmpHb0jkKGqWBTHbirTdzC3ZU"
     return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNsaWVudGVAZ21haWwuY29tIiwiaWF0IjoxNjg1MTExNDc3LCJleHAiOjE2ODUxMTUwNzcsInN1YiI6IjIifQ.HT4v9QjzrL-Fu19KfMSaroh_S6kfx45wgDFWlWrDFZ8'
-}
-
-const generateNames = (username) => {
-    if (username === "admin@gmail.com") return { fullName: 'Juan', lastName: 'Perez' }
-    return { fullName: 'Jose', lastName: 'Garcia' }
 }
 
 const menuAdmin = {
@@ -70,21 +68,41 @@ const menuUser = {
     ]
 }
 
-const getMenuItemsByRoleId = async (roleId) => {
+const getUsersWithRoles = async () => {
     try {
-        const menuItems = await Menu.findAll({
-            attributes: ['idMenu', 'idParent', 'name', 'route', 'icon', 'order'],
-            include: [{
-                model: MenuRol,
-                where: { fk_idRol: roleId, active: 1 },
-                attributes: []
-            }],
-            order: [['idParent', 'ASC'], ['order', 'ASC']]
+        const users = await User.findAll({
+            include: {
+                model: Rol,
+                attributes: ['rol'],
+            },
+            attributes: ['idUser', 'email'],
+            raw: true
         });
-
-        return menuItems;
+        return users;
     } catch (error) {
-        // Handle the error appropriately
+        console.error(error);
+        throw error;
+    }
+};
+
+// Usage
+getUsersWithRoles()
+.then(users => console.log(users))
+.catch(error => console.error(error));
+
+const getUserWithRoles = async (id) => {
+    try {
+        const users = await User.findAll({
+            where : {idUser : id},
+            include: {
+                model: Rol,
+                attributes: ['rol'],
+            },
+            attributes: ['idUser', 'email'],
+            raw: true
+        });
+        return users;
+    } catch (error) {
         console.error(error);
         throw error;
     }
@@ -97,49 +115,65 @@ const login = async (req, res) => {
 
     try {
 
-    const { email, password } = req.body
+        const { email, password } = req.body
 
-    if (!email || !password) {
-        return res.status(400).json({ message: 'Todos los campos son requeridos' })
-    }
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Todos los campos son requeridos' })
+        }
 
-    const foundUser = await User.findOne({ where: { email: email } });
+        const foundUser = await User.findOne({ 
+            where: { email: email },
+            include: [
+                {
+                    model: Rol,
+                    attributes: ['rol'],
+                },
+                {
+                    model: Company,
+                    attributes: ['name'],
+                },
+            ],
+        });
 
-    if (!foundUser) {
-        return res.status(404).json({ message: 'Usuario no encontrado' })
-    }
+        
 
-    if (!foundUser.active) {
-        return res.status(401).json({ message: 'Usuario inactivo' }) //Unauthorized
-    }
+        if (!foundUser) {
+            return res.status(404).json({ message: 'Usuario no encontrado' })
+        }
 
-    //const match = await bcrypt.compare(password, foundUser.password)
-    const match = password === foundUser.password
+        if (!foundUser.active) {
+            return res.status(401).json({ message: 'Usuario inactivo' }) //Unauthorized
+        }
 
-    if (!match) return res.status(401).json({ message: 'Contraseña incorrecta' }) //Unauthorized
+        const match = password === foundUser.password
 
-    const accessToken = generateAccessToken(foundUser.username)
-    const { fullName, lastName } = generateNames(foundUser.username)
-
-    //const menuItems = await Menu.findAll();
-    //console.log(menuItems)
-    //const menuItems = await getMenuItemsByRoleId(foundUser.fk_idRol);
-    //console.log(menuItems);
-    const userRole = (foundUser.fk_idRol === 1 ? 'admin' : 'user');
-    const userEmpresa = (foundUser.fk_idEmpresa === 1 ? 'OBEN Peru' : 'OBEN Colombia')
-    const menuItems =  (foundUser.fk_idRol === 1 ? menuAdmin.menu : menuUser.menu);
-    const objUser = {
-        email: foundUser.email,
-        fullName: fullName,
-        lastName: lastName,
-        role: userRole,
-        menu: menuItems,
-        empresa: userEmpresa
-    }
+        //const match = await bcrypt.compare(password, foundUser.password)
+        if (!match) return res.status(401).json({ message: 'Contraseña incorrecta' }) //Unauthorized
 
 
-    // Send accessToken containing username and roles 
-    res.json({ user: objUser, accessToken: accessToken });
+        const userObject = foundUser.get({ plain: true })
+
+        
+
+        const accessToken = generateAccessToken(foundUser.username)
+
+        const fullName = userObject.email.split('@')[0];
+        const lastName = '';
+        
+        const menuItems = (foundUser.fk_idRol === 1 ? menuAdmin.menu : menuUser.menu);
+
+        const objUser = {
+            id: userObject.idUser,
+            email: userObject.email,
+            fullName: fullName,
+            lastName: lastName,
+            role: userObject.rol.rol,
+            empresa: userObject.empresa.name,
+            menu: menuItems,
+        }
+        
+        // Send accessToken containing username and roles 
+        res.json({ user: objUser, accessToken: accessToken });
 
     } catch (error) {
         res.status(500).json({ message: error.message })

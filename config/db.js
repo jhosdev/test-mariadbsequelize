@@ -36,5 +36,10 @@ db.menu_roles = require("../models/menu_rol.model.js")(sequelize, Sequelize);
 db.roles.belongsToMany(db.menus, { through: db.menu_roles, foreignKey: 'fk_idRol' });
 db.menus.belongsToMany(db.roles, { through: db.menu_roles, foreignKey: 'fk_idMenu' });
 
+db.users.belongsTo(db.roles, { foreignKey: 'fk_idRol' });
+db.roles.hasOne(db.users, { foreignKey: 'fk_idRol' });
+
+db.users.belongsTo(db.companies, { foreignKey: 'fk_idEmpresa' });
+db.companies.hasOne(db.users, { foreignKey: 'fk_idEmpresa' });
 
 module.exports = db;
