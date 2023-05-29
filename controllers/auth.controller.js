@@ -46,7 +46,7 @@ const menuAdmin = {
                 {
                     "idMenu": "6",
                     "name": "Pagos Pendientes",
-                    "route": "pending",
+                    "route": "pendingpayments",
                     "icon": "fa fa-caret-right",
                     "order": "1"
                 }
