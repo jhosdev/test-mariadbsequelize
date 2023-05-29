@@ -172,35 +172,12 @@ const objUserTest1 = {
 const objUserTest2 = {
     "user": {
         "id": 6,
-        "email": "manolito@mail.com",
-        "fullName": "manolito",
+        "email": "uauario1@obengroup.com",
+        "fullName": "juan",
         "lastName": "",
-        "role": "ADMINISTRADOR",
+        "role": "CLIENTE",
         "empresa": "OBEN Peru",
         "menu": [
-            {
-                "idMenu": "2",
-                "name": "Usuarios",
-                "route": "users",
-                "icon": "fa fa-users",
-                "order": "2",
-                "submenus": [
-                    {
-                        "idMenu": "3",
-                        "name": "Lista",
-                        "route": "list",
-                        "icon": "fa fa-caret-right",
-                        "order": "1"
-                    },
-                    {
-                        "idMenu": "4",
-                        "name": "Registrar",
-                        "route": "register",
-                        "icon": "fa fa-caret-right",
-                        "order": "2"
-                    }
-                ]
-            },
             {
                 "idMenu": "5",
                 "name": "Pagos",
