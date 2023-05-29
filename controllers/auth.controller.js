@@ -14,14 +14,6 @@ const generateAccessToken = (username) => {
 const menuAdmin = {
     menu: [
         {
-            "idMenu": "1",
-            "name": "Panel",
-            "route": "dashboard",
-            "icon": "fa fa-gear-fill",
-            "order": "1",
-            "submenus": []
-        },
-        {
             "idMenu": "2",
             "name": "Usuarios",
             "route": "users",
