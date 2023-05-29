@@ -35,6 +35,22 @@ const menuAdmin = {
                     "order": "2"
                 }
             ]
+        },
+        {
+            "idMenu": "5",
+            "name": "Pagos",
+            "route": "payments",
+            "icon": "fa fa-money",
+            "order": "1",
+            "submenus": [
+                {
+                    "idMenu": "6",
+                    "name": "Pagos Pendientes",
+                    "route": "pending",
+                    "icon": "fa fa-caret-right",
+                    "order": "1"
+                }
+            ]
         }
     ]
 }
