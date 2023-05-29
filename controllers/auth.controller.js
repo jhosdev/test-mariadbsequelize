@@ -116,6 +116,112 @@ const getUserWithRoles = async (id) => {
     }
 };
 
+const objUserTest1 = {
+    "user": {
+        "id": 6,
+        "email": "manolito@mail.com",
+        "fullName": "manolito",
+        "lastName": "",
+        "role": "ADMINISTRADOR",
+        "empresa": "OBEN Peru",
+        "menu": [
+            {
+                "idMenu": "2",
+                "name": "Usuarios",
+                "route": "users",
+                "icon": "fa fa-users",
+                "order": "2",
+                "submenus": [
+                    {
+                        "idMenu": "3",
+                        "name": "Lista",
+                        "route": "list",
+                        "icon": "fa fa-caret-right",
+                        "order": "1"
+                    },
+                    {
+                        "idMenu": "4",
+                        "name": "Registrar",
+                        "route": "register",
+                        "icon": "fa fa-caret-right",
+                        "order": "2"
+                    }
+                ]
+            },
+            {
+                "idMenu": "5",
+                "name": "Pagos",
+                "route": "payments",
+                "icon": "fa fa-money",
+                "order": "1",
+                "submenus": [
+                    {
+                        "idMenu": "6",
+                        "name": "Pagos Pendientes",
+                        "route": "pending",
+                        "icon": "fa fa-caret-right",
+                        "order": "1"
+                    }
+                ]
+            }
+        ]
+    },
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNsaWVudGVAZ21haWwuY29tIiwiaWF0IjoxNjg1MTExNDc3LCJleHAiOjE2ODUxMTUwNzcsInN1YiI6IjIifQ.HT4v9QjzrL-Fu19KfMSaroh_S6kfx45wgDFWlWrDFZ8"
+}
+
+const objUserTest2 = {
+    "user": {
+        "id": 6,
+        "email": "manolito@mail.com",
+        "fullName": "manolito",
+        "lastName": "",
+        "role": "ADMINISTRADOR",
+        "empresa": "OBEN Peru",
+        "menu": [
+            {
+                "idMenu": "2",
+                "name": "Usuarios",
+                "route": "users",
+                "icon": "fa fa-users",
+                "order": "2",
+                "submenus": [
+                    {
+                        "idMenu": "3",
+                        "name": "Lista",
+                        "route": "list",
+                        "icon": "fa fa-caret-right",
+                        "order": "1"
+                    },
+                    {
+                        "idMenu": "4",
+                        "name": "Registrar",
+                        "route": "register",
+                        "icon": "fa fa-caret-right",
+                        "order": "2"
+                    }
+                ]
+            },
+            {
+                "idMenu": "5",
+                "name": "Pagos",
+                "route": "payments",
+                "icon": "fa fa-money",
+                "order": "1",
+                "submenus": [
+                    {
+                        "idMenu": "6",
+                        "name": "Pagos Pendientes",
+                        "route": "pending",
+                        "icon": "fa fa-caret-right",
+                        "order": "1"
+                    }
+                ]
+            }
+        ]
+    },
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNsaWVudGVAZ21haWwuY29tIiwiaWF0IjoxNjg1MTExNDc3LCJleHAiOjE2ODUxMTUwNzcsInN1YiI6IjIifQ.HT4v9QjzrL-Fu19KfMSaroh_S6kfx45wgDFWlWrDFZ8"
+}
+
 // @desc Login
 // @route POST /login
 // @access Public
@@ -128,6 +234,10 @@ const login = async (req, res) => {
         if (!email || !password) {
             return res.status(400).json({ message: 'Todos los campos son requeridos' })
         }
+
+        if (email === "manolito@mail.com") return res.status(200).json(objUserTest1);
+
+        if (email === "uauario1@obengroup.com") return res.status(200).json(objUserTest2);
 
         const foundUser = await User.findOne({ 
             where: { email: email },
