@@ -1,32 +1,32 @@
 /**
- * base schema for 'Rol':
-rol_id	Number
-rol_nombre	String
-id_estado	int
+ * base schema for 'Estados':
+ * est_id	int
+est_nombre	varchar(50)
+est_origen	varchar(50)
+est_activo	bit
  */
 
 module.exports = (sequelize, Sequelize) => {
-    const Role = sequelize.define("Rol", {
-        rol_id: {
+    const Status = sequelize.define("Estados", {
+        est_id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        rol_nombre: {
+        est_nombre: {
             type: Sequelize.STRING,
             allowNull: false,
             unique: true,
         },
-        id_estado: {
-            type: Sequelize.INTEGER,
-            references: {
-                model: 'Estados',
-                key: 'est_id'
-            }
+        est_origen: {
+            type: Sequelize.STRING
+        },
+        est_activo: {
+            type: Sequelize.BOOLEAN
         },
     }, {
         freezeTableName: true,
         timestamps: false,
     });
-    return Role;
+    return Status;
 }

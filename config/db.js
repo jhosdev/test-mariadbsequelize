@@ -25,21 +25,16 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.roles = require("../models/role.model.js")(sequelize, Sequelize);
-db.menus = require("../models/menu.model.js")(sequelize, Sequelize);
-db.companies = require("../models/company.model.js")(sequelize, Sequelize);
-db.users = require("../models/user.model.js")(sequelize, Sequelize);
-
-db.menu_roles = require("../models/menu_rol.model.js")(sequelize, Sequelize);
-
-// Define associations
-db.roles.belongsToMany(db.menus, { through: db.menu_roles, foreignKey: 'fk_idRol' });
-db.menus.belongsToMany(db.roles, { through: db.menu_roles, foreignKey: 'fk_idMenu' });
-
-db.users.belongsTo(db.roles, { foreignKey: 'fk_idRol' });
-db.roles.hasOne(db.users, { foreignKey: 'fk_idRol' });
-
-db.users.belongsTo(db.companies, { foreignKey: 'fk_idEmpresa' });
-db.companies.hasOne(db.users, { foreignKey: 'fk_idEmpresa' });
+// Define models
+db.country = require("../models/country.model.js")(sequelize, Sequelize);
+db.company = require("../models/company.model.js")(sequelize, Sequelize);
+db.user = require("../models/user.model.js")(sequelize, Sequelize);
+db.login_log = require("../models/login_log.model.js")(sequelize, Sequelize);
+db.user_company = require("../models/user_company.model.js")(sequelize, Sequelize);
+db.role = require("../models/role.model.js")(sequelize, Sequelize);
+db.menu = require("../models/menu.model.js")(sequelize, Sequelize);
+db.rol_menu = require("../models/rol_menu.model.js")(sequelize, Sequelize);
+db.user_menu_role = require("../models/user_menu_role.model.js")(sequelize, Sequelize);
+db.status = require("../models/status.model.js")(sequelize, Sequelize);
 
 module.exports = db;

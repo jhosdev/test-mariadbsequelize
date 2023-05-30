@@ -1,21 +1,19 @@
 /**
- * base schema for 'Rol':
-rol_id	Number
-rol_nombre	String
-id_estado	int
+ * base schema for country:
+ * pai_id: pk, int
+ * pai_nombre: string
+ * id_estado: fk
  */
 
 module.exports = (sequelize, Sequelize) => {
-    const Role = sequelize.define("Rol", {
-        rol_id: {
+    const Country = sequelize.define("Pais", {
+        pai_id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        rol_nombre: {
-            type: Sequelize.STRING,
-            allowNull: false,
-            unique: true,
+        pai_nombre: {
+            type: Sequelize.STRING
         },
         id_estado: {
             type: Sequelize.INTEGER,
@@ -25,8 +23,7 @@ module.exports = (sequelize, Sequelize) => {
             }
         },
     }, {
-        freezeTableName: true,
-        timestamps: false,
+        freezeTableName: true
     });
-    return Role;
+    return Country;
 }

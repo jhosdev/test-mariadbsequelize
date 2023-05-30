@@ -1,275 +1,113 @@
 const db = require('../config/db');
-const User = db.users;
-const Rol = db.roles;
-const Company = db.companies;
-const Menu = db.menus;
-const MenuRol = db.menu_roles;
+const User = db.user;
+const sequelize = db.sequelize;
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
+const { QueryTypes } = require('sequelize');
 
+const nestMenu = (menuData) => {
 
-const generateAccessToken = (username) => {
-    if (username === "admin@gmail.com") return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsImlhdCI6MTY4NTExMTUwMiwiZXhwIjoxNjg1MTE1MTAyLCJzdWIiOiIxIn0.wioy7j4XX5vnj1YutcGmpHb0jkKGqWBTHbirTdzC3ZU"
-    return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNsaWVudGVAZ21haWwuY29tIiwiaWF0IjoxNjg1MTExNDc3LCJleHAiOjE2ODUxMTUwNzcsInN1YiI6IjIifQ.HT4v9QjzrL-Fu19KfMSaroh_S6kfx45wgDFWlWrDFZ8'
-}
+    let nestedMenuT = [];
 
-const menuAdmin = {
-    menu: [
-        {
-            "idMenu": "2",
-            "name": "Usuarios",
-            "route": "users",
-            "icon": "fa fa-users",
-            "order": "2",
-            "submenus": [
-                {
-                    "idMenu": "3",
-                    "name": "Lista",
-                    "route": "list",
-                    "icon": "fa fa-caret-right",
-                    "order": "1"
-                },
-                {
-                    "idMenu": "4",
-                    "name": "Registrar",
-                    "route": "register",
-                    "icon": "fa fa-caret-right",
-                    "order": "2"
-                }
-            ]
-        },
-        {
-            "idMenu": "5",
-            "name": "Pagos",
-            "route": "payments",
-            "icon": "fa fa-money",
-            "order": "1",
-            "submenus": [
-                {
-                    "idMenu": "6",
-                    "name": "Pagos Pendientes",
-                    "route": "pendingpayments",
-                    "icon": "fa fa-caret-right",
-                    "order": "1"
-                }
-            ]
+    for (const key in menuData) {
+        const menu = menuData[key];
+        const trueKey = menu.men_id;
+        const parentId = menu.men_idpadre;
+
+        const { children, ...menuWithoutChildren } = menu;
+
+        if (!parentId) {
+            // Root level menu item
+            nestedMenuT.push({ ...menuWithoutChildren, children: [] });
+        } else {
+            const parentItem = nestedMenuT.find(item => item.men_id === parentId);
+            parentItem.children.push({ ...menuWithoutChildren });
         }
-    ]
-}
-
-const menuUser = {
-    menu: [
-        {
-            "idMenu": "5",
-            "name": "Pagos",
-            "route": "payments",
-            "icon": "fa fa-money",
-            "order": "1",
-            "submenus": [
-                {
-                    "idMenu": "6",
-                    "name": "Pagos Pendientes",
-                    "route": "pending",
-                    "icon": "fa fa-caret-right",
-                    "order": "1"
-                }
-            ]
-        }
-    ]
-}
-
-const getUsersWithRoles = async () => {
-    try {
-        const users = await User.findAll({
-            include: {
-                model: Rol,
-                attributes: ['rol'],
-            },
-            attributes: ['idUser', 'email'],
-            raw: true
-        });
-        return users;
-    } catch (error) {
-        console.error(error);
-        throw error;
     }
+
+    return nestedMenuT;
 };
 
-// Usage
-getUsersWithRoles()
-.then(users => console.log(users))
-.catch(error => console.error(error));
 
-const getUserWithRoles = async (id) => {
-    try {
-        const users = await User.findAll({
-            where : {idUser : id},
-            include: {
-                model: Rol,
-                attributes: ['rol'],
-            },
-            attributes: ['idUser', 'email'],
-            raw: true
-        });
-        return users;
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
-};
-
-const objUserTest1 = {
-    "user": {
-        "id": 6,
-        "email": "manolito@mail.com",
-        "fullName": "manolito",
-        "lastName": "",
-        "role": "ADMINISTRADOR",
-        "empresa": "OBEN Peru",
-        "menu": [
-            {
-                "idMenu": "2",
-                "name": "Usuarios",
-                "route": "users",
-                "icon": "fa fa-users",
-                "order": "2",
-                "submenus": [
-                    {
-                        "idMenu": "3",
-                        "name": "Lista",
-                        "route": "list",
-                        "icon": "fa fa-caret-right",
-                        "order": "1"
-                    },
-                    {
-                        "idMenu": "4",
-                        "name": "Registrar",
-                        "route": "register",
-                        "icon": "fa fa-caret-right",
-                        "order": "2"
-                    }
-                ]
-            },
-            {
-                "idMenu": "5",
-                "name": "Pagos",
-                "route": "payments",
-                "icon": "fa fa-money",
-                "order": "1",
-                "submenus": [
-                    {
-                        "idMenu": "6",
-                        "name": "Pagos Pendientes",
-                        "route": "pending",
-                        "icon": "fa fa-caret-right",
-                        "order": "1"
-                    }
-                ]
-            }
-        ]
-    },
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNsaWVudGVAZ21haWwuY29tIiwiaWF0IjoxNjg1MTExNDc3LCJleHAiOjE2ODUxMTUwNzcsInN1YiI6IjIifQ.HT4v9QjzrL-Fu19KfMSaroh_S6kfx45wgDFWlWrDFZ8"
-}
-
-const objUserTest2 = {
-    "user": {
-        "id": 6,
-        "email": "uauario1@obengroup.com",
-        "fullName": "juan",
-        "lastName": "",
-        "role": "CLIENTE",
-        "empresa": "OBEN Peru",
-        "menu": [
-            {
-                "idMenu": "5",
-                "name": "Pagos",
-                "route": "payments",
-                "icon": "fa fa-money",
-                "order": "1",
-                "submenus": [
-                    {
-                        "idMenu": "6",
-                        "name": "Pagos Pendientes",
-                        "route": "pending",
-                        "icon": "fa fa-caret-right",
-                        "order": "1"
-                    }
-                ]
-            }
-        ]
-    },
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNsaWVudGVAZ21haWwuY29tIiwiaWF0IjoxNjg1MTExNDc3LCJleHAiOjE2ODUxMTUwNzcsInN1YiI6IjIifQ.HT4v9QjzrL-Fu19KfMSaroh_S6kfx45wgDFWlWrDFZ8"
-}
 
 // @desc Login
 // @route POST /login
 // @access Public
 const login = async (req, res) => {
-
     try {
 
-        const { email, password } = req.body
+        const { usu_cuenta, usu_clave } = req.body
 
-        if (!email || !password) {
+        if (!usu_cuenta || !usu_clave) {
             return res.status(400).json({ message: 'Todos los campos son requeridos' })
         }
 
-        if (email === "manolito@mail.com") return res.status(200).json(objUserTest1);
+        const [results] = await db.sequelize.query(`CALL SP_USUARIO_AUTH('${usu_cuenta}')`, { type: QueryTypes.SELECT });
 
-        if (email === "uauario1@obengroup.com") return res.status(200).json(objUserTest2);
+        if (!results[0]) return res.status(404).json({ message: 'Usuario no encontrado' })
 
-        const foundUser = await User.findOne({ 
-            where: { email: email },
-            include: [
-                {
-                    model: Rol,
-                    attributes: ['rol'],
-                },
-                {
-                    model: Company,
-                    attributes: ['name'],
-                },
-            ],
-        });
+        const user = { ...results[0] }
 
-        
-
-        if (!foundUser) {
-            return res.status(404).json({ message: 'Usuario no encontrado' })
+        if (user.est_nombre === 'Inactivo') {
+            return res.status(401).json({ message: 'Usuario Inactivo' }) //Unauthorized
         }
 
-        if (!foundUser.active) {
-            return res.status(401).json({ message: 'Usuario inactivo' }) //Unauthorized
-        }
-
-        const match = password === foundUser.password
-
-        //const match = await bcrypt.compare(password, foundUser.password)
+        const match = usu_clave === user.usu_clave
+        //const match = await bcrypt.compare(password, user.password)
         if (!match) return res.status(401).json({ message: 'Contraseña incorrecta' }) //Unauthorized
 
+        const [menuData] = await db.sequelize.query(`CALL USP_Menu_List('${user.rol_id}')`, { type: QueryTypes.SELECT });
 
-        const userObject = foundUser.get({ plain: true })
+        const nestedMenuData = nestMenu(menuData);
 
-        const accessToken = generateAccessToken(foundUser.username)
+        const userResponse = {
+            userInfo: {
+                id: user.usu_id,
+                cuenta: user.usu_cuenta,
+                nombre: user.usu_nombre,
+                fechacreacion: user.usu_fechacreacion,
+                fechavencimientoclave: user.usu_fechavencimientoclave,
+                estado: user.est_nombre,
+                rol: user.rol_nombre,
+                id_rol: user.rol_id
+            },
+            companyInfo: {
+                id: user.emp_id,
+                nombre: user.emp_nombre,
+                direccion: user.emp_direccion,
+                telefono: user.emp_telefono,
+                pais: user.pai_nombre
+            },
+            menuInfo: nestedMenuData
+        };
 
-        const fullName = userObject.email.split('@')[0];
-        const lastName = '';
-        
-        const menuItems = (foundUser.fk_idRol === 1 ? menuAdmin.menu : menuUser.menu);
+        const accessToken = jwt.sign(
+            {
+                ...userResponse
+            },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: '15m' }
+        )
 
-        const objUser = {
-            id: userObject.idUser,
-            email: userObject.email,
-            fullName: fullName,
-            lastName: lastName,
-            role: userObject.rol.rol,
-            empresa: userObject.empresa.name,
-            menu: menuItems,
-        }
+        const refreshToken = jwt.sign(
+            { cuenta: user.usu_cuenta, },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '7d' }
+        )
+
+        // Create secure cookie with refresh token 
+        res.cookie('jwt', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+            maxAge: 7 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+        })
 
         // Send accessToken containing username and roles 
-        res.json({ user: objUser, accessToken: accessToken });
+        res.json({ ...userResponse, accessToken });
 
     } catch (error) {
-        res.status(500).json({ message: error.message })
+        console.log(error)
     }
 }
 

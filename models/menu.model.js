@@ -1,34 +1,59 @@
+/**
+ * base schema for 'Menu':
+men_id	Number
+men_nombre	String
+men_ruta	String
+men_idpadre	Number
+men_nivel	Number
+men_orden	Number
+men_icono	varchar(50)
+id_estado	int
+ */
+
 module.exports = (sequelize, Sequelize) => {
-    const Menu = sequelize.define("menu", {
-        idMenu: {
+    const Menu = sequelize.define("Menu", {
+        men_id: {
             type: Sequelize.INTEGER,
-            primaryKey: true
+            primaryKey: true,
+            autoIncrement: true
         },
-        idParent: {
+        men_nombre: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            unique: true,
+        },
+        men_ruta: {
+            type: Sequelize.STRING,
+            allowNull: false,
+        },
+        men_idpadre: {
             type: Sequelize.INTEGER,
-            defaultValue: 0
+            references: {
+                model: 'Menu',
+                key: 'men_id'
+            },
+            defaultValue: null,
+            allowNull: true,
         },
-        name: {
+        men_nivel: {
+            type: Sequelize.INTEGER
+        },
+        men_orden: {
+            type: Sequelize.INTEGER
+        },
+        men_icono: {
             type: Sequelize.STRING
         },
-        route: {
-            type: Sequelize.STRING,
-            defaultValue: ''
-        },
-        icon: {
-            type: Sequelize.STRING,
-            defaultValue: ''
-        },
-        order: {
+        id_estado: {
             type: Sequelize.INTEGER,
-            defaultValue: 0
-        },
-        active: {
-            type: Sequelize.BOOLEAN,
-            defaultValue: 1
+            references: {
+                model: 'Estados',
+                key: 'est_id'
+            }
         },
     }, {
-        freezeTableName: true
+        freezeTableName: true,
+        timestamps: false,
     });
     return Menu;
-};
+}
