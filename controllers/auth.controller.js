@@ -36,13 +36,13 @@ const nestMenu = (menuData) => {
 const login = async (req, res) => {
     try {
 
-        const { usu_cuenta, usu_clave } = req.body
+        const { email, password } = req.body
 
-        if (!usu_cuenta || !usu_clave) {
+        if (!email || !password) {
             return res.status(400).json({ message: 'Todos los campos son requeridos' })
         }
 
-        const [results] = await db.sequelize.query(`CALL SP_USUARIO_AUTH('${usu_cuenta}')`, { type: QueryTypes.SELECT });
+        const [results] = await db.sequelize.query(`CALL SP_USUARIO_AUTH('${email}')`, { type: QueryTypes.SELECT });
 
         if (!results[0]) return res.status(404).json({ message: 'Usuario no encontrado' })
 
@@ -52,7 +52,7 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Usuario Inactivo' }) //Unauthorized
         }
 
-        const match = usu_clave === user.usu_clave
+        const match = password === user.usu_clave
         //const match = await bcrypt.compare(password, user.password)
         if (!match) return res.status(401).json({ message: 'Contraseña incorrecta' }) //Unauthorized
 
