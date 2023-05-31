@@ -1,6 +1,5 @@
 const db = require('../config/db');
 const User = db.user;
-const sequelize = db.sequelize;
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const { QueryTypes } = require('sequelize');
@@ -42,7 +41,7 @@ const login = async (req, res) => {
             return res.status(400).json({ message: 'Todos los campos son requeridos' })
         }
 
-        const [results] = await db.sequelize.query(`CALL SP_USUARIO_AUTH('${email}')`, { type: QueryTypes.SELECT });
+        const [results] = await db.sequelize.query(`CALL USP_Usuario_Auth('${email}')`, { type: QueryTypes.SELECT });
 
         if (!results[0]) return res.status(404).json({ message: 'Usuario no encontrado' })
 
